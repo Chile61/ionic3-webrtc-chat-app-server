@@ -9,19 +9,34 @@ const io = socketio.listen(server);
 console.log("Listening on port", SERVER_PORT_NUMBER);
 
 io.sockets.on('connection', client => {
+
+	broadcastActiveUsers = () => {
+		console.log("ACTIVE USERS");
+		let users = {};
+		for(let sock in io.sockets.sockets){
+			console.log(io.sockets.sockets[sock].displayName);
+			users[io.sockets.sockets[sock].id] =
+			{
+				displayName: io.sockets.sockets[sock].displayName,
+				id: io.sockets.sockets[sock].id
+			};
+		}
+		io.of('/').emit('display-names-updated', { users: users });
+	}
+
 	let originalId = client.id;
+	io.sockets.sockets[client.id].displayName = client.id;
+	broadcastActiveUsers();
 	// console.log(Object.keys(io.sockets.sockets));
 	//client.emit('omae_wa_mou_shindeiru');
 	client.on('updated-display-name', (newDisplayName) => {
 		// client.emit('nane', {});
 		// client.broadcast.emit('other_name', {});
 
-		io.sockets.sockets[client.id].name = newDisplayName;
+		io.sockets.sockets[client.id].displayName = newDisplayName;
+		broadcastActiveUsers();
 
-		console.log("ACTIVE USERS");
-		for(let sock in io.sockets.sockets){
-			console.log(io.sockets.sockets[sock].name);
-		}
+
 	});
 
 	client.on('disconnect', (a) => {
