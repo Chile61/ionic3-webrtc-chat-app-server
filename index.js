@@ -33,16 +33,19 @@ io.sockets.on('connection', client => {
 	client.on('updated-display-name', (newDisplayName) => {
 		// client.emit('nane', {});
 		// client.broadcast.emit('other_name', {});
+		console.log("ev: updated-display-name");
 		io.sockets.sockets[client.id].displayName = newDisplayName;
 		broadcastActiveUsers();
 	});
 
 	client.on('request-session', (destinationClientId) => {
+		console.log("ev: request session");
 		console.log("EMITTING SESS CONF");
 		client.to(destinationClientId).emit('session-confirmed', client.id);
 	});
 
 	client.on('initial-offering', (initialOfferingPackage) => {
+		console.log("ev: initial-offering");
 		let { initialOffer, destinationClientId } =  initialOfferingPackage;
 		let response = {
 			initialOffer: initialOffer,
@@ -52,6 +55,7 @@ io.sockets.on('connection', client => {
 	});
 
 	client.on('answer', (answerPackage) => {
+		console.log("ev: answer");
 		let { answer, destinationClientId} = answerPackage;
 		let response = {
 			answer: answer,
@@ -61,6 +65,7 @@ io.sockets.on('connection', client => {
 	});
 
 	client.on('ice-candidate', (candidatePackage) => {
+		console.log("ev: ice-candidate");
 		const { candidate, destinationClientId } = candidatePackage;
 		client.to(destinationClientId).emit('remote-sending-ice-candidate', candidate);
 	});
